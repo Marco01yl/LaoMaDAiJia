@@ -19,3 +19,13 @@
 
 # Go workspace file
 go.work
+# Compiled 0bject files，Static and Dynamic libs (Shared 0bjects)
+*.o
+*.a
+*.so
+# OS General
+Thumbs.db
+.Db_Store
+
+# Project
+*.cert

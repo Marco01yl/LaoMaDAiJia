@@ -2,6 +2,7 @@ package server
 
 import (
 	v1 "verify-code/api/helloworld/v1"
+	verifyCode "verify-code/api/verifyCode"
 	"verify-code/internal/conf"
 	"verify-code/internal/service"
 
@@ -11,7 +12,10 @@ import (
 )
 
 // NewGRPCServer new a gRPC server.
-func NewGRPCServer(c *conf.Server, greeter *service.GreeterService, logger log.Logger) *grpc.Server {
+func NewGRPCServer(c *conf.Server,
+	greeter *service.GreeterService,
+	VerifyCodeService *service.VerifyCodeService,
+	logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
@@ -28,5 +32,7 @@ func NewGRPCServer(c *conf.Server, greeter *service.GreeterService, logger log.L
 	}
 	srv := grpc.NewServer(opts...)
 	v1.RegisterGreeterServer(srv, greeter)
+	//完成服务的注册：verifycode
+	verifyCode.RegisterVerifyCodeServer(srv, VerifyCodeService)
 	return srv
 }

@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package api.customer;
+import "google/api/annotations.proto";
+option go_package = "customer/api/customer;customer";
+option java_multiple_files = true;
+option java_package = "api.customer";
+
+service Customer {
+	//获取验证码
+	  rpc GetVerifyCode (GetVerifyCodeReq) returns (GetVerifyCodeResp) {
+		    option (google.api.http) = {
+			  get: "/customer/get-verfify-code"
+		    };
+	  }
+}
+message GetVerifyCodeReq {
+	  string Telephone = 1;
+};
+message GetVerifyCodeResp {
+	int32 Code = 1;
+	string Message = 2;
+	string data = 3;
+};

@@ -28,13 +28,16 @@ type CustomerHTTPServer interface {
 
 func RegisterCustomerHTTPServer(s *http.Server, srv CustomerHTTPServer) {
 	r := s.Route("/")
-	r.GET("/customer/get-verfify-code", _Customer_GetVerifyCode0_HTTP_Handler(srv))
+	r.GET("/customer/get-verfify-code/{telephone}", _Customer_GetVerifyCode0_HTTP_Handler(srv))
 }
 
 func _Customer_GetVerifyCode0_HTTP_Handler(srv CustomerHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetVerifyCodeReq
 		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationCustomerGetVerifyCode)
@@ -64,7 +67,7 @@ func NewCustomerHTTPClient(client *http.Client) CustomerHTTPClient {
 
 func (c *CustomerHTTPClientImpl) GetVerifyCode(ctx context.Context, in *GetVerifyCodeReq, opts ...http.CallOption) (*GetVerifyCodeResp, error) {
 	var out GetVerifyCodeResp
-	pattern := "/customer/get-verfify-code"
+	pattern := "/customer/get-verfify-code/{telephone}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationCustomerGetVerifyCode))
 	opts = append(opts, http.PathTemplate(pattern))

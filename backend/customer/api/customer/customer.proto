@@ -10,15 +10,16 @@ service Customer {
 	//获取验证码
 	  rpc GetVerifyCode (GetVerifyCodeReq) returns (GetVerifyCodeResp) {
 		    option (google.api.http) = {
-			  get: "/customer/get-verfify-code"
+			  get: "/customer/get-verfify-code/{telephone}"
 		    };
 	  }
 }
 message GetVerifyCodeReq {
-	  string Telephone = 1;
+	  string telephone = 1;
 };
 message GetVerifyCodeResp {
-	int32 Code = 1;
-	string Message = 2;
-	string data = 3;
+	int32 code = 1;
+	string message = 2;
+	string verify_code = 3;
+	int32 verify_code_time = 4;
 };

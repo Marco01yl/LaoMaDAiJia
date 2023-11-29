@@ -5,8 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6de5c50c-62f8-4165-bcb8-4e3d99b1c62b" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/customer/api/customer/customer.pb.go" beforeDir="false" afterPath="$PROJECT_DIR$/backend/customer/api/customer/customer.pb.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/customer/api/customer/customer.proto" beforeDir="false" afterPath="$PROJECT_DIR$/backend/customer/api/customer/customer.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/customer/api/verifyCode/verifyCode.pb.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/customer/api/verifyCode/verifyCode.proto" beforeDir="false" afterPath="$PROJECT_DIR$/backend/customer/api/verifyCode/verifyCode.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/customer/api/verifyCode/verifyCode_grpc.pb.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/customer/internal/service/customer.go" beforeDir="false" afterPath="$PROJECT_DIR$/backend/customer/internal/service/customer.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/customer/openapi.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/customer/openapi.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/verify-code/api/verifyCode/verifyCode.pb.go" beforeDir="false" afterPath="$PROJECT_DIR$/backend/verify-code/api/verifyCode/verifyCode.pb.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/verify-code/api/verifyCode/verifyCode.proto" beforeDir="false" afterPath="$PROJECT_DIR$/backend/verify-code/api/verifyCode/verifyCode.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/verify-code/api/verifyCode/verifyCode_grpc.pb.go" beforeDir="false" afterPath="$PROJECT_DIR$/backend/verify-code/api/verifyCode/verifyCode_grpc.pb.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/verify-code/internal/server/grpc.go" beforeDir="false" afterPath="$PROJECT_DIR$/backend/verify-code/internal/server/grpc.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,10 +52,33 @@
     "git-widget-placeholder": "main",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "E:/ty_java/LaoMadaijia/LaoMaDAiJia",
+    "last_opened_file_path": "E:/ty_java/LaoMadaijia/LaoMaDAiJia/backend/customer/api/verifyCode",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
     "settings.editor.selected.configurable": "com.goide.configuration.GoLibrariesConfigurableProvider"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\ty_java\LaoMadaijia\LaoMaDAiJia\backend\customer\api\verifyCode" />
+      <recent name="E:\ty_java\LaoMadaijia\LaoMaDAiJia\backend\customer\api\verifycode" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="go build verify-code/internal/service" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="LaoMaDAiJia" />
+      <working_directory value="$PROJECT_DIR$/backend/verify-code" />
+      <kind value="PACKAGE" />
+      <package value="verify-code/internal/service" />
+      <directory value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go 构建.go build verify-code/internal/service" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />

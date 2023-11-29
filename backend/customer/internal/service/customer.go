@@ -2,10 +2,11 @@ package service
 
 import (
 	"context"
+	pb "customer/api/customer"
+	verifyCode "customer/api/verifyCode"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"regexp"
-
-	pb "customer/api/customer"
+	"time"
 )
 
 type CustomerService struct {
@@ -46,6 +47,22 @@ func (s *CustomerService) GetVerifyCode(ctx context.Context, req *pb.GetVerifyCo
 	//2、发送获取验证码请求//需要在customer服务中，使用verify-code服务中的.proto文件，
 	//生成客户端（stub存根)代码，才可以完成grpc的远程调用
 	////因此需要拷贝verifyCode.proto并使用kratos client来生成
+	client := verifyCode.NewVerifyCodeClient(conn)
+	reply, err := client.GetVerifyCode(context.Background(), &verifyCode.GetVerifyCodeRequest{
+		Length: 6,
+		Type:   1,
+	})
+	if err != nil {
+		return &pb.GetVerifyCodeResp{
+			Code:    1,
+			Message: "get verify-code failed",
+		}, nil
+	}
 
-	return &pb.GetVerifyCodeResp{}, nil
+	return &pb.GetVerifyCodeResp{
+		Code:               0,
+		VerifyCode:         reply.Code,
+		VerifyCodeTime:     time.Now().Unix(),
+		VerifyCodeLifetime: 60,
+	}, nil
 }

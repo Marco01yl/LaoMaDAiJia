@@ -32,7 +32,7 @@ func NewGRPCServer(c *conf.Server,
 	}
 	srv := grpc.NewServer(opts...)
 	v1.RegisterGreeterServer(srv, greeter)
-	//完成服务的注册：verifycode
+	//完成服务的注册：verifyCode
 	verifyCode.RegisterVerifyCodeServer(srv, VerifyCodeService)
 	return srv
 }

@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package api.verfyCode;
+package api.verifyCode;
 
-option go_package = "verify-code/api/verfyCode;verfyCode";
+option go_package = "verify-code/api/verifyCode;verifyCode";
 
 
 service VerifyCode {

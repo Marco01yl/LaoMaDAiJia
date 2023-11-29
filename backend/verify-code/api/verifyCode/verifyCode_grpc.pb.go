@@ -4,7 +4,7 @@
 // - protoc             v3.21.6
 // source: api/verifyCode/verifyCode.proto
 
-package verfyCode
+package verifyCode
 
 import (
 	context "context"
@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	VerifyCode_GetVerifyCode_FullMethodName = "/api.verfyCode.VerifyCode/GetVerifyCode"
+	VerifyCode_GetVerifyCode_FullMethodName = "/api.verifyCode.VerifyCode/GetVerifyCode"
 )
 
 // VerifyCodeClient is the client API for VerifyCode service.
@@ -96,7 +96,7 @@ func _VerifyCode_GetVerifyCode_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var VerifyCode_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.verfyCode.VerifyCode",
+	ServiceName: "api.verifyCode.VerifyCode",
 	HandlerType: (*VerifyCodeServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

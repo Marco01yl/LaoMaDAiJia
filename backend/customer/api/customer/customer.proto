@@ -18,8 +18,9 @@ message GetVerifyCodeReq {
 	  string telephone = 1;
 };
 message GetVerifyCodeResp {
-	int32 code = 1;
+	int64 code = 1;
 	string message = 2;
 	string verify_code = 3;
-	int32 verify_code_time = 4;
+	int64 verify_code_time = 4;
+	int32 verify_code_lifetime = 5;
 };

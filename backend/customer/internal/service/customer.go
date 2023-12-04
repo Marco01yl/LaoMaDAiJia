@@ -4,6 +4,7 @@ import (
 	"context"
 	pb "customer/api/customer"
 	verifyCode "customer/api/verifyCode"
+	"customer/internal/data"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"regexp"
 	"time"
@@ -11,10 +12,13 @@ import (
 
 type CustomerService struct {
 	pb.UnimplementedCustomerServer
+	cd *data.CustomerData
 }
 
-func NewCustomerService() *CustomerService {
-	return &CustomerService{}
+func NewCustomerService(cd *data.CustomerData) *CustomerService {
+	return &CustomerService{
+		cd: cd,
+	}
 }
 
 func (s *CustomerService) GetVerifyCode(ctx context.Context, req *pb.GetVerifyCodeReq) (*pb.GetVerifyCodeResp, error) {
@@ -59,10 +63,21 @@ func (s *CustomerService) GetVerifyCode(ctx context.Context, req *pb.GetVerifyCo
 		}, nil
 	}
 
+	const life = 60 //定义临时缓存时间
+	//3、redis的临时存储
+	//使用go-redis包完成redis操作
+	if err := s.cd.SetVerifyCode(req.Telephone, reply.Code, life); err != nil {
+		return &pb.GetVerifyCodeResp{
+			Code:    1,
+			Message: "get verify-code failed(set redis)",
+		}, nil
+	}
+
+	//生成相应
 	return &pb.GetVerifyCodeResp{
 		Code:               0,
 		VerifyCode:         reply.Code,
 		VerifyCodeTime:     time.Now().Unix(),
-		VerifyCodeLifetime: 60,
+		VerifyCodeLifetime: life,
 	}, nil
 }

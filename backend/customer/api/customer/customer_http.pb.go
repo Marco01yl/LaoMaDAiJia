@@ -20,15 +20,19 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 const OperationCustomerGetVerifyCode = "/api.customer.Customer/GetVerifyCode"
+const OperationCustomerLogin = "/api.customer.Customer/Login"
 
 type CustomerHTTPServer interface {
 	// GetVerifyCode获取验证码
 	GetVerifyCode(context.Context, *GetVerifyCodeReq) (*GetVerifyCodeResp, error)
+	// Login登录
+	Login(context.Context, *LoginReq) (*LoginResp, error)
 }
 
 func RegisterCustomerHTTPServer(s *http.Server, srv CustomerHTTPServer) {
 	r := s.Route("/")
 	r.GET("/customer/get-verfify-code/{telephone}", _Customer_GetVerifyCode0_HTTP_Handler(srv))
+	r.POST("/customer/login", _Customer_Login0_HTTP_Handler(srv))
 }
 
 func _Customer_GetVerifyCode0_HTTP_Handler(srv CustomerHTTPServer) func(ctx http.Context) error {
@@ -53,8 +57,31 @@ func _Customer_GetVerifyCode0_HTTP_Handler(srv CustomerHTTPServer) func(ctx http
 	}
 }
 
+func _Customer_Login0_HTTP_Handler(srv CustomerHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in LoginReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCustomerLogin)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.Login(ctx, req.(*LoginReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*LoginResp)
+		return ctx.Result(200, reply)
+	}
+}
+
 type CustomerHTTPClient interface {
 	GetVerifyCode(ctx context.Context, req *GetVerifyCodeReq, opts ...http.CallOption) (rsp *GetVerifyCodeResp, err error)
+	Login(ctx context.Context, req *LoginReq, opts ...http.CallOption) (rsp *LoginResp, err error)
 }
 
 type CustomerHTTPClientImpl struct {
@@ -72,6 +99,19 @@ func (c *CustomerHTTPClientImpl) GetVerifyCode(ctx context.Context, in *GetVerif
 	opts = append(opts, http.Operation(OperationCustomerGetVerifyCode))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *CustomerHTTPClientImpl) Login(ctx context.Context, in *LoginReq, opts ...http.CallOption) (*LoginResp, error) {
+	var out LoginResp
+	pattern := "/customer/login"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationCustomerLogin))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

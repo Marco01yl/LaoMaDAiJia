@@ -9,11 +9,36 @@ option java_package = "api.customer";
 service Customer {
 	//获取验证码
 	  rpc GetVerifyCode (GetVerifyCodeReq) returns (GetVerifyCodeResp) {
-		    option (google.api.http) = {
+			option (google.api.http) = {
 			  get: "/customer/get-verfify-code/{telephone}"
-		    };
+
+			};
 	  }
+	//登录
+	rpc Login (LoginReq) returns (LoginResp) {
+		option (google.api.http) = {
+			post: "/customer/login"
+			body: "*"
+		};
+	}
 }
+//login的消息
+message LoginReq {
+	string telephone = 1;
+	string verify_code = 2;
+};
+message LoginResp {
+	int64 code = 1;
+	string message = 2;
+	//token
+	string  token = 3;
+	//token created time(unix timestamp) 特殊的字符串，用jwt的编码格式
+	int64 token_create_at = 4;
+	// token life time (second)
+	int32 token_life = 5;
+};
+
+//获取验证码的消息
 message GetVerifyCodeReq {
 	  string telephone = 1;
 };

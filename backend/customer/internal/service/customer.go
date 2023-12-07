@@ -81,3 +81,35 @@ func (s *CustomerService) GetVerifyCode(ctx context.Context, req *pb.GetVerifyCo
 		VerifyCodeLifetime: life,
 	}, nil
 }
+
+// 手动写入登录的业务逻辑
+func (s *CustomerService) Login(ctx context.Context, req *pb.LoginReq) (*pb.LoginResp, error) {
+	//校验手机和验证码
+	//用电话号
+	//key := "CVC:" + req.Telephone
+	code := s.cd.GetVerifyCode(req.Telephone)
+	if code == "" || code != req.VerifyCode {
+		return &pb.LoginResp{
+			Code:    1,
+			Message: "验证码不匹配",
+		}, nil
+	}
+	//二、判断号码是否已经注册
+	customer, err := s.cd.GetCustomerByTelephone(req.Telephone)
+	if err != nil {
+		return &pb.LoginResp{
+			Code:    1,
+			Message: "顾客信息获取错误",
+		}, nil
+	}
+	//设置Token， iwt-token
+	token := s.cd.GenerateTokenAndSave(customer)
+	//响应token
+	return &pb.LoginResp{
+		Code:          0,
+		Message:       "Token created.",
+		Token:         token.Token,
+		TokenCreateAt: token.TokenCreateAt,
+		TokenLife:     token.TokenLife,
+	}, nil
+}

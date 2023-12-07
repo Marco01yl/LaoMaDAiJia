@@ -2,6 +2,9 @@ package data
 
 import (
 	"context"
+	"customer/internal/biz"
+	"github.com/go-kratos/kratos/v2/errors"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -26,4 +29,38 @@ func (cd CustomerData) SetVerifyCode(telephone, code string, ex int) error {
 	}
 
 	return nil
+}
+
+// 业务逻辑中校验用户和验证码以及生成token的逻辑
+// 获取对应的验证码
+func (cd CustomerData) GetVerifyCode(telephone string) string {
+	status := cd.data.RDB.Get(context.Background(), "CVC:"+telephone)
+	return status.String()
+}
+
+// 根据电话获取顾客信息
+func (cd CustomerData) GetCustomerByTelephone(telephone string) (*biz.Customer, error) {
+	custoemr := &biz.Customer{}
+	result := cd.data.MDB.Where("telephone=?").First(custoemr)
+
+	if result.Error == nil && custoemr.ID > 0 {
+		//query执行成功，返回cusetomer
+		return custoemr, nil
+	}
+	//不成功
+	//记录不存在。创建customer并返回
+	if result.Error != nil && errors.Is(result.Error, gorm.ErrRecordNotFound) {
+
+		custoemr.Telephone = telephone
+		resultCreate := cd.data.MDB.Create(custoemr)
+		//创建插入成功
+		if resultCreate.Error != nil {
+			return custoemr, nil
+		} else {
+			return nil, resultCreate.Error
+		}
+
+	}
+	//不是记录不存在。不做业务逻辑处理
+	return nil, result.Error
 }

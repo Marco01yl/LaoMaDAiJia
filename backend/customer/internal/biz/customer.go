@@ -11,7 +11,7 @@ type CustomerWork struct {
 	Name      string `gorm:"type:varchar(255);uniqueIndex;" json:"name"`
 	Email     string `gorm:"type:varchar(255);uniqueIndex;" json:"email"`
 	Wechat    string `gorm:"type:varchar(255);uniqueIndex;" json:"wechat"`
-	//City   uint   `gorm:"type:Int;" json:"city"`
+	City      uint   `gorm:"index;" json:"city_id"`
 }
 
 // Token部分

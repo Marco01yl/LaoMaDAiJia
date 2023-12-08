@@ -91,7 +91,7 @@ func (s *CustomerService) Login(ctx context.Context, req *pb.LoginReq) (*pb.Logi
 	if code == "" || code != req.VerifyCode {
 		return &pb.LoginResp{
 			Code:    1,
-			Message: "验证码不匹配",
+			Message: "校验不正确",
 		}, nil
 	}
 	//二、判断号码是否已经注册
@@ -102,14 +102,32 @@ func (s *CustomerService) Login(ctx context.Context, req *pb.LoginReq) (*pb.Logi
 			Message: "顾客信息获取错误",
 		}, nil
 	}
-	//设置Token， iwt-token
-	token := s.cd.GenerateTokenAndSave(customer)
-	//响应token
+	//三、设置Token， jwt-token
+	const secret = "yoursecretkey" //加密用字符串要严格保存在服务器端
+	const duration = 2 * 30 * 24 * 3600
+
+	token, err := s.cd.GenerateTokenAndSave(customer, duration*time.Second, secret)
+	if err != nil {
+		return &pb.LoginResp{
+			Code:    1,
+			Message: "Token created failed.",
+			Token:   token,
+		}, nil
+	}
+	//四、响应token
 	return &pb.LoginResp{
 		Code:          0,
-		Message:       "Token created.",
-		Token:         token.Token,
-		TokenCreateAt: token.TokenCreateAt,
-		TokenLife:     token.TokenLife,
+		Message:       "Token created successed.",
+		Token:         token,
+		TokenCreateAt: time.Now().Unix(),
+		//TokenLife:     2 * 30 * 24 * 3600, 可已设置为常量
+		TokenLife: duration,
 	}, nil
 }
+
+//Code:          0,
+//Message:       "Token created successed.",
+//Token:         token,
+//TokenCreateAt: time.Now().Unix(),
+////TokenLife:     2 * 30 * 24 * 3600, 可已设置为常量
+//TokenLife: duration,

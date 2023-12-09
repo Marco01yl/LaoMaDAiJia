@@ -4,6 +4,7 @@ import (
 	"context"
 	pb "customer/api/customer"
 	verifyCode "customer/api/verifyCode"
+	"customer/internal/biz"
 	"customer/internal/data"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"regexp"
@@ -103,10 +104,10 @@ func (s *CustomerService) Login(ctx context.Context, req *pb.LoginReq) (*pb.Logi
 		}, nil
 	}
 	//三、设置Token， jwt-token
-	const secret = "yoursecretkey" //加密用字符串要严格保存在服务器端
-	const duration = 2 * 30 * 24 * 3600
+	//const secret = "yoursecretkey" //加密用字符串要严格保存在服务器端
+	//const duration = 2 * 30 * 24 * 3600
 
-	token, err := s.cd.GenerateTokenAndSave(customer, duration*time.Second, secret)
+	token, err := s.cd.GenerateTokenAndSave(customer, biz.CustomerDuration*time.Second, biz.CustomerSecret)
 	if err != nil {
 		return &pb.LoginResp{
 			Code:    1,
@@ -121,7 +122,7 @@ func (s *CustomerService) Login(ctx context.Context, req *pb.LoginReq) (*pb.Logi
 		Token:         token,
 		TokenCreateAt: time.Now().Unix(),
 		//TokenLife:     2 * 30 * 24 * 3600, 可已设置为常量
-		TokenLife: duration,
+		TokenLife: biz.CustomerDuration,
 	}, nil
 }
 

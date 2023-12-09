@@ -21,7 +21,15 @@ service Customer {
 			body: "*"
 		};
 	}
+//	//退出
+//	rpc LoginOut (LoginoutReq) returns (LoginoutResp) {
+//		option (google.api.http) = {
+//			get: "/customer/loginout"
+//
+//		};
+//	}
 }
+
 //login的消息
 message LoginReq {
 	string telephone = 1;

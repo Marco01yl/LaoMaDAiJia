@@ -29,3 +29,6 @@ type Customer struct {
 	//Token部分
 	CustomerToken
 }
+
+const CustomerSecret = "yoursecretkey" //加密用字符串要严格保存在服务器端
+const CustomerDuration = 2 * 30 * 24 * 3600

@@ -5,12 +5,11 @@ import (
 	"customer/api/customer"
 	v1 "customer/api/helloworld/v1"
 	"customer/internal/biz"
+	"customer/internal/conf"
+	"customer/internal/service"
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	"github.com/go-kratos/kratos/v2/middleware/selector"
 	jwt2 "github.com/golang-jwt/jwt/v4"
-
-	"customer/internal/conf"
-	"customer/internal/service"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -26,13 +25,15 @@ func NewHTTPServer(c *conf.Server,
 		http.Middleware(
 			recovery.Recovery(),
 			//添加自己设置的中间件
-			selector.Server(jwt.Server(func(token *jwt2.Token) (interface{}, error) {
-				return []byte(biz.CustomerSecret), nil
-			})).Match(func(ctx context.Context, operation string) bool {
+			selector.Server(
+				jwt.Server(func(token *jwt2.Token) (interface{}, error) {
+					return []byte(biz.CustomerSecret), nil
+				}), customerJWT(CustomerService)).Match(func(ctx context.Context, operation string) bool {
 				//根据自己的需求完成是否启用该中间件的校验工作
 				noJWT := map[string]struct{}{ //struct结构提相当于key不重复的集合类型
 					"/api.customer.Customer/Login":         {},
 					"/api.customer.Customer/GetVerifyCode": {},
+					//"/api.customer.Customer/Logout":        {},
 				}
 				if _, exists := noJWT[operation]; exists {
 					return false

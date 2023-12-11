@@ -21,13 +21,13 @@ service Customer {
 			body: "*"
 		};
 	}
-//	//退出
-//	rpc LoginOut (LoginoutReq) returns (LoginoutResp) {
-//		option (google.api.http) = {
-//			get: "/customer/loginout"
-//
-//		};
-//	}
+
+	// 退出
+	rpc Logout (LogoutReq) returns (LogoutResp) {
+		option (google.api.http) = {
+			get: "/customer/logout",
+		};
+	}
 }
 
 //login的消息
@@ -56,4 +56,11 @@ message GetVerifyCodeResp {
 	string verify_code = 3;
 	int64 verify_code_time = 4;
 	int32 verify_code_lifetime = 5;
+};
+//退出的消息
+message LogoutReq {
+};
+message LogoutResp {
+	int64 code = 1;
+	string message = 2;
 };

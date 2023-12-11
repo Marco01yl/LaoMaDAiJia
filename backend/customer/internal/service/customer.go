@@ -13,12 +13,12 @@ import (
 
 type CustomerService struct {
 	pb.UnimplementedCustomerServer
-	cd *data.CustomerData
+	CD *data.CustomerData
 }
 
 func NewCustomerService(cd *data.CustomerData) *CustomerService {
 	return &CustomerService{
-		cd: cd,
+		CD: cd,
 	}
 }
 
@@ -67,7 +67,7 @@ func (s *CustomerService) GetVerifyCode(ctx context.Context, req *pb.GetVerifyCo
 	const life = 60 //定义临时缓存时间
 	//3、redis的临时存储
 	//使用go-redis包完成redis操作
-	if err := s.cd.SetVerifyCode(req.Telephone, reply.Code, life); err != nil {
+	if err := s.CD.SetVerifyCode(req.Telephone, reply.Code, life); err != nil {
 		return &pb.GetVerifyCodeResp{
 			Code:    1,
 			Message: "get verify-code failed(set redis)",
@@ -88,7 +88,7 @@ func (s *CustomerService) Login(ctx context.Context, req *pb.LoginReq) (*pb.Logi
 	//校验手机和验证码
 	//用电话号
 	//key := "CVC:" + req.Telephone
-	code := s.cd.GetVerifyCode(req.Telephone)
+	code := s.CD.GetVerifyCode(req.Telephone)
 	if code == "" || code != req.VerifyCode {
 		return &pb.LoginResp{
 			Code:    1,
@@ -96,7 +96,7 @@ func (s *CustomerService) Login(ctx context.Context, req *pb.LoginReq) (*pb.Logi
 		}, nil
 	}
 	//二、判断号码是否已经注册
-	customer, err := s.cd.GetCustomerByTelephone(req.Telephone)
+	customer, err := s.CD.GetCustomerByTelephone(req.Telephone)
 	if err != nil {
 		return &pb.LoginResp{
 			Code:    1,
@@ -107,7 +107,7 @@ func (s *CustomerService) Login(ctx context.Context, req *pb.LoginReq) (*pb.Logi
 	//const secret = "yoursecretkey" //加密用字符串要严格保存在服务器端
 	//const duration = 2 * 30 * 24 * 3600
 
-	token, err := s.cd.GenerateTokenAndSave(customer, biz.CustomerDuration*time.Second, biz.CustomerSecret)
+	token, err := s.CD.GenerateTokenAndSave(customer, biz.CustomerDuration*time.Second, biz.CustomerSecret)
 	if err != nil {
 		return &pb.LoginResp{
 			Code:    1,
@@ -126,9 +126,12 @@ func (s *CustomerService) Login(ctx context.Context, req *pb.LoginReq) (*pb.Logi
 	}, nil
 }
 
-//Code:          0,
-//Message:       "Token created successed.",
-//Token:         token,
-//TokenCreateAt: time.Now().Unix(),
-////TokenLife:     2 * 30 * 24 * 3600, 可已设置为常量
-//TokenLife: duration,
+// Code:          0,
+// Message:       "Token created successed.",
+// Token:         token,
+// TokenCreateAt: time.Now().Unix(),
+// //TokenLife:     2 * 30 * 24 * 3600, 可已设置为常量
+// TokenLife: duration,
+func (s *CustomerService) Logout(ctx context.Context, req *pb.LogoutReq) (*pb.LogoutResp, error) {
+	return &pb.LogoutResp{}, nil
+}

@@ -21,18 +21,22 @@ const _ = http.SupportPackageIsVersion1
 
 const OperationCustomerGetVerifyCode = "/api.customer.Customer/GetVerifyCode"
 const OperationCustomerLogin = "/api.customer.Customer/Login"
+const OperationCustomerLogout = "/api.customer.Customer/Logout"
 
 type CustomerHTTPServer interface {
 	// GetVerifyCode获取验证码
 	GetVerifyCode(context.Context, *GetVerifyCodeReq) (*GetVerifyCodeResp, error)
 	// Login登录
 	Login(context.Context, *LoginReq) (*LoginResp, error)
+	// Logout 退出
+	Logout(context.Context, *LogoutReq) (*LogoutResp, error)
 }
 
 func RegisterCustomerHTTPServer(s *http.Server, srv CustomerHTTPServer) {
 	r := s.Route("/")
 	r.GET("/customer/get-verfify-code/{telephone}", _Customer_GetVerifyCode0_HTTP_Handler(srv))
 	r.POST("/customer/login", _Customer_Login0_HTTP_Handler(srv))
+	r.GET("/customer/logout", _Customer_Logout0_HTTP_Handler(srv))
 }
 
 func _Customer_GetVerifyCode0_HTTP_Handler(srv CustomerHTTPServer) func(ctx http.Context) error {
@@ -79,9 +83,29 @@ func _Customer_Login0_HTTP_Handler(srv CustomerHTTPServer) func(ctx http.Context
 	}
 }
 
+func _Customer_Logout0_HTTP_Handler(srv CustomerHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in LogoutReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCustomerLogout)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.Logout(ctx, req.(*LogoutReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*LogoutResp)
+		return ctx.Result(200, reply)
+	}
+}
+
 type CustomerHTTPClient interface {
 	GetVerifyCode(ctx context.Context, req *GetVerifyCodeReq, opts ...http.CallOption) (rsp *GetVerifyCodeResp, err error)
 	Login(ctx context.Context, req *LoginReq, opts ...http.CallOption) (rsp *LoginResp, err error)
+	Logout(ctx context.Context, req *LogoutReq, opts ...http.CallOption) (rsp *LogoutResp, err error)
 }
 
 type CustomerHTTPClientImpl struct {
@@ -112,6 +136,19 @@ func (c *CustomerHTTPClientImpl) Login(ctx context.Context, in *LoginReq, opts .
 	opts = append(opts, http.Operation(OperationCustomerLogin))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *CustomerHTTPClientImpl) Logout(ctx context.Context, in *LogoutReq, opts ...http.CallOption) (*LogoutResp, error) {
+	var out LogoutResp
+	pattern := "/customer/logout"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationCustomerLogout))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

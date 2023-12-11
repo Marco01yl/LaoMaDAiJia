@@ -112,3 +112,11 @@ func (cd CustomerData) GenerateTokenAndSave(c *biz.Customer, duration time.Durat
 	//三、操作完毕，返回token
 	return secretToken, nil
 }
+
+func (cd CustomerData) GetToken(id interface{}) (string, error) {
+	c := &biz.Customer{}
+	if result := cd.data.MDB.First(c, id); result.Error != nil {
+		return "", result.Error
+	}
+	return c.Token, nil
+}

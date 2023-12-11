@@ -120,3 +120,16 @@ func (cd CustomerData) GetToken(id interface{}) (string, error) {
 	}
 	return c.Token, nil
 }
+
+func (cd CustomerData) DleToken(id interface{}) error {
+	//先通过id得到用户信息
+	c := &biz.Customer{}
+	if result := cd.data.MDB.First(c, id); result.Error != nil {
+		return result.Error
+	}
+	//删除
+	c.Token = ""
+	c.TokenCreateAt = sql.NullTime{Valid: false}
+	cd.data.MDB.Save(c)
+	return nil
+}

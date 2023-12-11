@@ -6,7 +6,9 @@ import (
 	verifyCode "customer/api/verifyCode"
 	"customer/internal/biz"
 	"customer/internal/data"
+	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
+	jwt2 "github.com/golang-jwt/jwt/v4"
 	"regexp"
 	"time"
 )
@@ -133,5 +135,24 @@ func (s *CustomerService) Login(ctx context.Context, req *pb.LoginReq) (*pb.Logi
 // //TokenLife:     2 * 30 * 24 * 3600, 可已设置为常量
 // TokenLife: duration,
 func (s *CustomerService) Logout(ctx context.Context, req *pb.LogoutReq) (*pb.LogoutResp, error) {
-	return &pb.LogoutResp{}, nil
+
+	//获得用户的信息
+	// 一、获取这个jwt中的id
+	claims, _ := jwt.FromContext(ctx) // 得到的claims是interface类型，之后需断言
+	//1.2断言claims
+	claimsMap := claims.(jwt2.MapClaims)
+	//map中jti字段就是浏览器存储格式json中的jwt的id
+	//id := claimsMap["jti"]
+	//删除用户的token
+	if err := s.CD.DleToken(claimsMap["jti"]); err != nil {
+		return &pb.LogoutResp{
+			Code:    1,
+			Message: "Token 删除失败",
+		}, nil
+	}
+	//成功，响应
+	return &pb.LogoutResp{
+		Code:    0,
+		Message: "logout success",
+	}, nil
 }

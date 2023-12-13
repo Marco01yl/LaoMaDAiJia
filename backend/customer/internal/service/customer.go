@@ -6,9 +6,14 @@ import (
 	verifyCode "customer/api/verifyCode"
 	"customer/internal/biz"
 	"customer/internal/data"
+	"github.com/go-kratos/kratos/contrib/registry/consul/v2"
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
+	"github.com/go-kratos/kratos/v2/selector"
+	"github.com/go-kratos/kratos/v2/selector/random"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	jwt2 "github.com/golang-jwt/jwt/v4"
+	"github.com/hashicorp/consul/api"
 	"regexp"
 	"time"
 )
@@ -36,10 +41,28 @@ func (s *CustomerService) GetVerifyCode(ctx context.Context, req *pb.GetVerifyCo
 	}
 
 	//二、通过验证码服务生成验证码（服务间通信，grpc）//1、连接gRPC服务2、发送获取验证码请求
+
+	//一、获取consul客户端
+	consulConfig := api.DefaultConfig()
+	consulConfig.Address = "localhost:8500"
+	consulClient, err := api.NewClient(consulConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
+	//二、获取consul 发现 工具
+	dis := consul.New(consulClient) //discover
+
+	selector.SetGlobalSelector(random.NewBuilder())
+	//selector.SetGlobalSelector(wrr.NewBuilder())
+	//selector.SetGlobalSelector(p2c.NewBuilder())
+	endPoint := "discovery:///verifyCode"
 	//1连接gRPC服务
 	conn, err := grpc.DialInsecure(
 		context.Background(),
-		grpc.WithEndpoint("localhost:9000"), //grpc服务地址
+		//grpc.WithEndpoint("localhost:9000"), //grpc服务地址
+		grpc.WithEndpoint(endPoint), //目标服务的名字
+		//使用服务发现
+		grpc.WithDiscovery(dis),
 	)
 	if err != nil {
 		return &pb.GetVerifyCodeResp{

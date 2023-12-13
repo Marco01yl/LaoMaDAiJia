@@ -25,6 +25,12 @@ func NewHTTPServer(c *conf.Server,
 		http.Middleware(
 			recovery.Recovery(),
 			//添加自己设置的中间件
+
+			// CORS，全部的请求（响应）都使用该中间件
+			selector.Server(MWCors()).Match(func(ctx context.Context, operation string) bool {
+				return true
+			}).Build(),
+			//jwt相关中间件
 			selector.Server(
 				jwt.Server(func(token *jwt2.Token) (interface{}, error) {
 					return []byte(biz.CustomerSecret), nil

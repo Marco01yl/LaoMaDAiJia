@@ -6,6 +6,36 @@ info:
     title: Customer API
     version: 0.0.1
 paths:
+    /customer/estimate-price/{origin}/{destination}:
+        get:
+            tags:
+                - Customer
+            description: 价格预估
+            operationId: Customer_EstimatePrice
+            parameters:
+                - name: origin
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: destination
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EstimatePriceResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /customer/get-verfify-code/{telephone}:
         get:
             tags:
@@ -77,6 +107,19 @@ paths:
                                 $ref: '#/components/schemas/Status'
 components:
     schemas:
+        EstimatePriceResp:
+            type: object
+            properties:
+                code:
+                    type: string
+                message:
+                    type: string
+                origin:
+                    type: string
+                destination:
+                    type: string
+                price:
+                    type: string
         GetVerifyCodeResp:
             type: object
             properties:

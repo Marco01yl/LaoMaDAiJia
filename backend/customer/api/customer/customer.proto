@@ -28,6 +28,12 @@ service Customer {
 			get: "/customer/logout",
 		};
 	}
+	// 价格预估
+	rpc EstimatePrice (EstimatePriceReq) returns (EstimatePriceResp) {
+		option (google.api.http) = {
+			get: "/customer/estimate-price/{origin}/{destination}",
+		};
+	}
 }
 
 //login的消息
@@ -63,4 +69,16 @@ message LogoutReq {
 message LogoutResp {
 	int64 code = 1;
 	string message = 2;
+};
+//价格的信息
+message EstimatePriceReq {
+	string origin = 1;
+	string destination = 2;
+};
+message EstimatePriceResp {
+	int64 code = 1;
+	string message = 2;
+	string origin = 3;
+	string destination = 4;
+	int64 price = 5;
 };

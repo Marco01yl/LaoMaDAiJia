@@ -20,12 +20,14 @@ import (
 
 type CustomerService struct {
 	pb.UnimplementedCustomerServer
-	CD *data.CustomerData
+	CD   *data.CustomerData
+	Cbiz *biz.CustomerBiz
 }
 
-func NewCustomerService(cd *data.CustomerData) *CustomerService {
+func NewCustomerService(cd *data.CustomerData, cb *biz.CustomerBiz) *CustomerService {
 	return &CustomerService{
-		CD: cd,
+		CD:   cd,
+		Cbiz: cb,
 	}
 }
 
@@ -177,5 +179,21 @@ func (s *CustomerService) Logout(ctx context.Context, req *pb.LogoutReq) (*pb.Lo
 	return &pb.LogoutResp{
 		Code:    0,
 		Message: "logout success",
+	}, nil
+}
+func (s *CustomerService) EstimatePrice(ctx context.Context, req *pb.EstimatePriceReq) (*pb.EstimatePriceResp, error) {
+	price, err := s.Cbiz.GetEstimatePrice(req.Origin, req.Destination)
+	if err != nil {
+		return &pb.EstimatePriceResp{
+			Code:    1,
+			Message: err.Error(),
+		}, nil
+	}
+	return &pb.EstimatePriceResp{
+		Code:        0,
+		Message:     "got EstimatePrice",
+		Origin:      req.Origin,
+		Destination: req.Destination,
+		Price:       price,
 	}, nil
 }

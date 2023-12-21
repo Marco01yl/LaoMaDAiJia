@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"github.com/go-kratos/kratos/contrib/registry/consul/v2"
+	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/hashicorp/consul/api"
 	"gorm.io/gorm"
@@ -57,6 +58,11 @@ func (vb *ValuationBiz) GetDrivingInfo(ctx context.Context, origin, destination 
 		grpc.WithEndpoint(endPoint), //目标服务的名字
 		//使用服务发现
 		grpc.WithDiscovery(dis),
+		// 中间件
+		grpc.WithMiddleware(
+			// tracing 的客户端中间件
+			tracing.Client(),
+		),
 	)
 	if err != nil {
 		return

@@ -5,6 +5,12 @@ import (
 	"github.com/go-kratos/kratos/contrib/registry/consul/v2"
 	"github.com/google/uuid"
 	"github.com/hashicorp/consul/api"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/sdk/resource"
+	traceSDK "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"os"
 
 	"valuation/internal/conf"
@@ -47,6 +53,13 @@ func newApp(logger log.Logger, gs *grpc.Server, hs *http.Server) *kratos.App {
 	}
 	// 二，获取consul注册管理器
 	reg := consul.New(consulClient)
+
+	//初始化 TracerProvider
+	tracerURL := "http://localhost:14268/api/traces"
+	if err := initTracer(tracerURL); err != nil {
+		log.Error(err)
+	}
+
 	return kratos.New(
 		kratos.ID(id),
 		kratos.Name(Name),
@@ -78,7 +91,12 @@ func main() {
 			file.NewSource(flagconf),
 		),
 	)
-	defer c.Close()
+	defer func(c config.Config) {
+		err := c.Close()
+		if err != nil {
+
+		}
+	}(c)
 
 	if err := c.Load(); err != nil {
 		panic(err)
@@ -99,4 +117,32 @@ func main() {
 	if err := app.Run(); err != nil {
 		panic(err)
 	}
+}
+
+// 初始化tracer
+// @param url string 制定 Jaeger 的api接口 //:14268/api/traces
+func initTracer(url string) error {
+	//一、 建立一个jaeger的客户端，称之为：exporter（导出器）
+	exporter, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(url)))
+	if err != nil {
+		return err
+	}
+	//创建TracerProvider
+	tracerProvider := traceSDK.NewTracerProvider(
+		//采样设置
+		traceSDK.WithSampler(traceSDK.AlwaysSample()),
+		//使用 exporter 作为批处理程序
+		traceSDK.WithBatcher(exporter),
+		//将当前服务的信息，作为资源告知TracerProvider
+		traceSDK.WithResource(resource.NewSchemaless(
+			//必要的配置
+			semconv.ServiceNameKey.String(Name),
+			//任意的其他属性配置
+			attribute.String("exporter", "jaeger"),
+		)),
+	)
+
+	//设置全局的TP
+	otel.SetTracerProvider(tracerProvider)
+	return nil
 }

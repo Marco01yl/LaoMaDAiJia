@@ -20,15 +20,19 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 const OperationDriverGetVerifyCode = "/api.driver.Driver/GetVerifyCode"
+const OperationDriverSubmitPhone = "/api.driver.Driver/SubmitPhone"
 
 type DriverHTTPServer interface {
 	// GetVerifyCode获取验证码服务
 	GetVerifyCode(context.Context, *GetVerifyCodeReq) (*GetVerifyCodeResp, error)
+	// SubmitPhone提交电话号码
+	SubmitPhone(context.Context, *SubmitPhoneReq) (*SubmitPhoneResp, error)
 }
 
 func RegisterDriverHTTPServer(s *http.Server, srv DriverHTTPServer) {
 	r := s.Route("/")
 	r.GET("/driver/get-verify-code/{telephone}", _Driver_GetVerifyCode0_HTTP_Handler(srv))
+	r.POST("/driver/submit-phone", _Driver_SubmitPhone0_HTTP_Handler(srv))
 }
 
 func _Driver_GetVerifyCode0_HTTP_Handler(srv DriverHTTPServer) func(ctx http.Context) error {
@@ -53,8 +57,31 @@ func _Driver_GetVerifyCode0_HTTP_Handler(srv DriverHTTPServer) func(ctx http.Con
 	}
 }
 
+func _Driver_SubmitPhone0_HTTP_Handler(srv DriverHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SubmitPhoneReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationDriverSubmitPhone)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SubmitPhone(ctx, req.(*SubmitPhoneReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*SubmitPhoneResp)
+		return ctx.Result(200, reply)
+	}
+}
+
 type DriverHTTPClient interface {
 	GetVerifyCode(ctx context.Context, req *GetVerifyCodeReq, opts ...http.CallOption) (rsp *GetVerifyCodeResp, err error)
+	SubmitPhone(ctx context.Context, req *SubmitPhoneReq, opts ...http.CallOption) (rsp *SubmitPhoneResp, err error)
 }
 
 type DriverHTTPClientImpl struct {
@@ -72,6 +99,19 @@ func (c *DriverHTTPClientImpl) GetVerifyCode(ctx context.Context, in *GetVerifyC
 	opts = append(opts, http.Operation(OperationDriverGetVerifyCode))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *DriverHTTPClientImpl) SubmitPhone(ctx context.Context, in *SubmitPhoneReq, opts ...http.CallOption) (*SubmitPhoneResp, error) {
+	var out SubmitPhoneResp
+	pattern := "/driver/submit-phone"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationDriverSubmitPhone))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

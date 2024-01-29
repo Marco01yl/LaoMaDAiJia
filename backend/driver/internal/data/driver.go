@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"database/sql"
 	"driver/api/verifyCode"
 	"driver/internal/biz"
 	"github.com/go-kratos/kratos/contrib/registry/consul/v2"
@@ -17,7 +18,21 @@ type DriverData struct {
 func NewDriverInterface(data *Data) biz.DriverInterface {
 	return &DriverData{data: data}
 }
+func (dd *DriverData) InitDriverInfo(ctx context.Context, tel string) (*biz.Driver, error) {
+	//入库，设置状态为stop
+	driverInfo := biz.Driver{}
+	driverInfo.Telephone = tel
+	driverInfo.Status = sql.NullString{
+		String: "stop",
+		Valid:  true,
+	}
+	if err := dd.data.MDB.Create(&driverInfo).Error; err != nil {
+		return nil, err
+	}
 
+	return &driverInfo, nil
+
+}
 func (dd *DriverData) GetVerifyCode(ctx context.Context, tel string) (string, error) {
 	//grpc请求
 	consulConfig := api.DefaultConfig()

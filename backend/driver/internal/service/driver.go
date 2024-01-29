@@ -33,3 +33,22 @@ func (s *DriverService) GetVerifyCode(ctx context.Context, req *pb.GetVerifyCode
 		VerifyCodeLife: 2 * 30 * 24 * 3600,
 	}, nil
 }
+func (s *DriverService) SubmitPhone(ctx context.Context, req *pb.SubmitPhoneReq) (*pb.SubmitPhoneResp, error) {
+	//首先校验验证码（略）
+	//司机是否已经注册的校验（略）
+	//司机是否在黑名单（略）
+
+	//将司机信息入库,并设置状态为stop，暂停使用（核心逻辑）需要在biz中增加功能，上面的功能也在biz中实现
+	driver, err := s.bz.InitDriverInfo(ctx, req.Telephone)
+	if err != nil {
+		return &pb.SubmitPhoneResp{
+			Code:    1,
+			Message: "司机号码提交失败",
+		}, nil
+	}
+	return &pb.SubmitPhoneResp{
+		Code:    0,
+		Message: "司机号码提交成功",
+		Status:  driver.Status.String,
+	}, nil
+}

@@ -14,7 +14,7 @@ service:
 data:
   database:
     driver: mysql
-    source: root:lyl754483458@tcp(127.0.0.1:3307)/laomadj_customer?charset=utf8mb4&parseTime=True&loc=Local
+    source: root:lyl754483458@tcp(127.0.0.1:3307)/laomadj_driver?charset=utf8mb4&parseTime=True&loc=Local
   redis:
     addr: 127.0.0.1:6379
     read_timeout: 0.2s

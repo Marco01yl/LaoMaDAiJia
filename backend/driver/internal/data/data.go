@@ -1,6 +1,7 @@
 package data
 
 import (
+	"driver/internal/biz"
 	"driver/internal/conf"
 	"fmt"
 	"github.com/redis/go-redis/v9"
@@ -69,7 +70,8 @@ func NewData(c *conf.Data, cs *conf.Service, logger log.Logger) (*Data, func(), 
 	return data, cleanup, nil
 }
 func migrateTable(db *gorm.DB) {
-	//if err := db.AutoMigrate(&biz.Customer{}); err != nil {
-	//	log.Info("customer table migrate error")
-	//}
+	//自动迁移相关表
+	if err := db.AutoMigrate(&biz.Driver{}); err != nil {
+		log.Info("Driver table migrate error")
+	}
 }

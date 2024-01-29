@@ -11,7 +11,13 @@ service Driver {
 			get: "/driver/get-verify-code/{telephone}"
 		};
 	}
-
+	//提交电话号码
+	rpc SubmitPhone (SubmitPhoneReq) returns (SubmitPhoneResp) {
+		option (google.api.http) = {
+			post: "/driver/submit-phone"
+			body: "*"
+		};
+	}
 	//登录
 }
 
@@ -29,4 +35,14 @@ message GetVerifyCodeResp {
 	int64 verify_code_time = 4;
 	//有效期， 单位 second
 	int32 verify_code_life = 5;
+};
+
+message SubmitPhoneReq {
+	string telephone = 1;
+};
+
+message SubmitPhoneResp {
+	int64 code = 1;
+	string message = 2;
+	string status = 3;
 };

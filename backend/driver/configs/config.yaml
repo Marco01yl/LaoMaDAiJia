@@ -11,3 +11,11 @@ service:
     address: localhost:8500
   jaeger:
     url: http://localhost:14268/api/traces
+data:
+  database:
+    driver: mysql
+    source: root:lyl754483458@tcp(127.0.0.1:3307)/laomadj_customer?charset=utf8mb4&parseTime=True&loc=Local
+  redis:
+    addr: 127.0.0.1:6379
+    read_timeout: 0.2s
+    write_timeout: 0.2s

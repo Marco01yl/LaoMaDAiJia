@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package api.driver;
+import "google/api/annotations.proto";
+option go_package = "driver/api/driver;driver";
+
+service Driver {
+	//获取验证码服务
+	rpc GetVerifyCode (GetVerifyCodeReq) returns (GetVerifyCodeResp) {
+		option (google.api.http) = {
+			get: "/driver/get-verify-code/{telephone}"
+		};
+	}
+
+	//登录
+}
+
+//获取验证码的消息
+message GetVerifyCodeReq {
+	string telephone = 1;
+};
+
+message GetVerifyCodeResp {
+	int64 code = 1;
+	string message = 2;
+	//验证码
+	string verify_code = 3;
+	//生成时间 unix timestamp
+	int64 verify_code_time = 4;
+	//有效期， 单位 second
+	int32 verify_code_life = 5;
+};

@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	Driver_GetVerifyCode_FullMethodName = "/api.driver.Driver/GetVerifyCode"
 	Driver_SubmitPhone_FullMethodName   = "/api.driver.Driver/SubmitPhone"
+	Driver_Login_FullMethodName         = "/api.driver.Driver/Login"
 )
 
 // DriverClient is the client API for Driver service.
@@ -31,6 +32,8 @@ type DriverClient interface {
 	GetVerifyCode(ctx context.Context, in *GetVerifyCodeReq, opts ...grpc.CallOption) (*GetVerifyCodeResp, error)
 	// 提交电话号码
 	SubmitPhone(ctx context.Context, in *SubmitPhoneReq, opts ...grpc.CallOption) (*SubmitPhoneResp, error)
+	// 登录
+	Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginResp, error)
 }
 
 type driverClient struct {
@@ -59,6 +62,15 @@ func (c *driverClient) SubmitPhone(ctx context.Context, in *SubmitPhoneReq, opts
 	return out, nil
 }
 
+func (c *driverClient) Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginResp, error) {
+	out := new(LoginResp)
+	err := c.cc.Invoke(ctx, Driver_Login_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DriverServer is the server API for Driver service.
 // All implementations must embed UnimplementedDriverServer
 // for forward compatibility
@@ -67,6 +79,8 @@ type DriverServer interface {
 	GetVerifyCode(context.Context, *GetVerifyCodeReq) (*GetVerifyCodeResp, error)
 	// 提交电话号码
 	SubmitPhone(context.Context, *SubmitPhoneReq) (*SubmitPhoneResp, error)
+	// 登录
+	Login(context.Context, *LoginReq) (*LoginResp, error)
 	mustEmbedUnimplementedDriverServer()
 }
 
@@ -79,6 +93,9 @@ func (UnimplementedDriverServer) GetVerifyCode(context.Context, *GetVerifyCodeRe
 }
 func (UnimplementedDriverServer) SubmitPhone(context.Context, *SubmitPhoneReq) (*SubmitPhoneResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubmitPhone not implemented")
+}
+func (UnimplementedDriverServer) Login(context.Context, *LoginReq) (*LoginResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
 func (UnimplementedDriverServer) mustEmbedUnimplementedDriverServer() {}
 
@@ -129,6 +146,24 @@ func _Driver_SubmitPhone_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Driver_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DriverServer).Login(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Driver_Login_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DriverServer).Login(ctx, req.(*LoginReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Driver_ServiceDesc is the grpc.ServiceDesc for Driver service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -143,6 +178,10 @@ var Driver_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SubmitPhone",
 			Handler:    _Driver_SubmitPhone_Handler,
+		},
+		{
+			MethodName: "Login",
+			Handler:    _Driver_Login_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

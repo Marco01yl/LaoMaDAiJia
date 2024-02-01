@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"driver/internal/biz"
+	"log"
 	"time"
 
 	pb "driver/api/driver"
@@ -50,5 +51,25 @@ func (s *DriverService) SubmitPhone(ctx context.Context, req *pb.SubmitPhoneReq)
 		Code:    0,
 		Message: "司机号码提交成功",
 		Status:  driver.Status.String,
+	}, nil
+}
+func (s *DriverService) Login(ctx context.Context, req *pb.LoginReq) (*pb.LoginResp, error) {
+
+	//由biz层完成业务逻辑处理
+	token, err := s.bz.CheckLogin(ctx, req.Telephone, req.VerifyCode)
+	if err != nil {
+		//具体原因可通过log记录
+		log.Println(err)
+		return &pb.LoginResp{
+			Code:    1,
+			Message: "司机登录失败t",
+		}, nil
+	}
+	return &pb.LoginResp{
+		Code:          0,
+		Message:       "司机登录成功",
+		Token:         token,
+		TokenCreateAt: time.Now().Unix(),
+		TokenLife:     biz.TokenLifetime,
 	}, nil
 }

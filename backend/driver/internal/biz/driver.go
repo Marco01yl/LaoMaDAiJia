@@ -4,8 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"github.com/go-kratos/kratos/v2/errors"
+	"github.com/golang-jwt/jwt/v4"
 	"gorm.io/gorm"
 	"regexp"
+	"time"
 )
 
 type DriverBiz struct {
@@ -15,7 +17,11 @@ type DriverBiz struct {
 type DriverInterface interface {
 	GetVerifyCode(context.Context, string) (string, error)
 	InitDriverInfo(context.Context, string) (*Driver, error)
+	GetSavedVerifyCode(context.Context, string) (string, error)
+	SaveToken(context.Context, string, string) error
 }
+
+const secretKey = "driver secret key"
 
 func NewDriverBiz(di DriverInterface) *DriverBiz {
 	return &DriverBiz{di: di}
@@ -61,6 +67,9 @@ const DriverStatusIn = "in"
 const DriverStatusListen = "listen"
 const DriverStatusStop = "stop"
 
+// token生命周期常量
+const TokenLifetime = 1 * 30 * 3600 * 24
+
 // 将司机信息入库的功能
 func (db *DriverBiz) InitDriverInfo(ctx context.Context, tel string) (*Driver, error) {
 	//在业务层做一些判断，在数据层进行数据的创建（向上回到service层）
@@ -69,3 +78,55 @@ func (db *DriverBiz) InitDriverInfo(ctx context.Context, tel string) (*Driver, e
 	}
 	return db.di.InitDriverInfo(ctx, tel)
 }
+
+// 验证登录信息的方法
+func (db *DriverBiz) CheckLogin(ctx context.Context, tel, vcode string) (string, error) {
+	//验证验证码是否正确
+	code, err := db.di.GetSavedVerifyCode(ctx, tel)
+	if err != nil {
+		return "", err
+	}
+
+	if vcode != code {
+		return "", errors.New(200, "VerifyCode wrong", "")
+	}
+
+	//验证码验证无误后，开始生成jwt token
+	token, err := generateJwt(tel)
+	if err != nil {
+		return "", err
+	}
+
+	//将生成的token存储到driver表中（需要data层去实现）
+	if err := db.di.SaveToken(ctx, tel, token); err != nil {
+		return "", err
+	}
+	//存储完毕之后，返回token
+	return token, nil
+}
+
+// 在biz层内使用的利用verifyCode生成jwt的方法
+func generateJwt(tel string) (string, error) {
+	//构建token类型
+	claims := jwt.RegisteredClaims{
+		Issuer:    "LaomaDJ",
+		Subject:   "driver authentication",
+		Audience:  []string{"driver"},
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenLifetime * time.Second)),
+		NotBefore: nil,
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
+		ID:        tel,
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	//签名
+	//生成token字符串
+
+	tokenString, err := token.SignedString([]byte(secretKey))
+	if err != nil {
+		return "", err
+	}
+	return tokenString, err
+}
+
+//比对验证码是否一致

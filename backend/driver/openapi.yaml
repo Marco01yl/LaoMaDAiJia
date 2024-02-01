@@ -31,6 +31,31 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /driver/login:
+        post:
+            tags:
+                - Driver
+            description: 登录
+            operationId: Driver_Login
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/LoginReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/LoginResp'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /driver/submit-phone:
         post:
             tags:
@@ -83,6 +108,31 @@ components:
                     description: The type of the serialized message.
             additionalProperties: true
             description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        LoginReq:
+            type: object
+            properties:
+                telephone:
+                    type: string
+                verifyCode:
+                    type: string
+            description: login的消息
+        LoginResp:
+            type: object
+            properties:
+                code:
+                    type: string
+                message:
+                    type: string
+                token:
+                    type: string
+                    description: token
+                tokenCreateAt:
+                    type: string
+                    description: token created time(unix timestamp) 特殊的字符串，用jwt的编码格式
+                tokenLife:
+                    type: integer
+                    description: token life time (second)
+                    format: int32
         Status:
             type: object
             properties:

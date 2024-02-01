@@ -70,3 +70,29 @@ func (dd *DriverData) GetVerifyCode(ctx context.Context, tel string) (string, er
 	}
 	return reply.Code, nil
 }
+
+// 获取已经存储在redis中的验证码
+func (dd *DriverData) GetSavedVerifyCode(ctx context.Context, tel string) (string, error) {
+	//strCmd := dd.data.RDB.Get(ctx, "DVC"+tel)
+	//code, err := strCmd.Result()
+	return dd.data.RDB.Get(ctx, "DVC"+tel).Result()
+
+}
+
+// 存储biz层生成的jwtToken 到数据表
+func (dd *DriverData) SaveToken(ctx context.Context, tel, token string) error {
+	driver := &biz.Driver{}
+	//先获取司机信息
+	if err := dd.data.MDB.Where("telephone=?", tel).First(&driver).Error; err != nil {
+		return err
+	}
+	//再更新司机信息
+	driver.Token = sql.NullString{
+		String: token,
+		Valid:  true,
+	}
+	if err := dd.data.MDB.Save(&driver).Error; err != nil {
+		return err
+	}
+	return nil
+}
